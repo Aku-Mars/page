@@ -1,0 +1,86 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+}
+
+.card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.status-online {
+    background-color: #22c55e; /* green-500 */
+}
+
+.status-offline {
+    background-color: #ef4444; /* red-500 */
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+#hostListContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+#hostListContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#hostListContainer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+#hostListContainer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Tailwind non-standard classes are emulated here for toggle switch */
+.toggle-bg:after {
+    content: '';
+    position: absolute;
+    top: 0.125rem; /* top-0.5 */
+    left: 0.125rem; /* left-0.5 */
+    background-color: white;
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 9999px; /* rounded-full */
+    height: 1.25rem; /* h-5 */
+    width: 1.25rem; /* w-5 */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+}
+
+input:checked + .toggle-bg:after {
+    transform: translateX(100%);
+    border-color: white;
+}
+
+input:checked + .toggle-bg {
+    background-color: #2563eb; /* bg-blue-600 */
+    border-color: #2563eb; /* border-blue-600 */
+}

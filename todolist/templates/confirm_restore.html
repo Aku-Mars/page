@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi Pulihkan Tugas</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Aku-Mars/gambar/main/neko.png" type="image/x-icon">
+    <style>
+        /* Section Body */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgb(0 0 0);
+            padding: 20px;
+            margin: 0 auto;
+            margin-top: 50px;
+            max-width: 800px;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        /* Section Card */
+        .card {
+            display: flex;
+            flex-direction: column;
+            width: auto;
+            height: 185px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card__content {
+            flex: 1;
+            background-color: #c5c5c5;
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Section Button */
+        button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 10px 7px;
+        }
+
+        button:hover {
+            background-color: #005B8F;
+            transform: scale(1.1);
+        }
+
+        button.back-button {
+            background-color: #005B8F;
+        }
+
+        button.back-button:hover {
+            background-color: #003366;
+        }
+
+        /* Section Tema */
+        #theme-toggle {
+            margin-top: 10px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin: 0 auto;
+            margin-top: 10px;
+            max-width: 800px;
+        }
+
+        body.dark {
+            color: white;
+            background-color: #2b2b2b;
+            box-shadow: 0 0 5px rgb(255 255 255);
+        }
+
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .card {
+                height: 170px;
+            }
+        }
+    </style>
+</head>
+
+<body id="body">
+    <div class="card">
+        <div class="card__content">
+            <h1>Konfirmasi Pulihkan Tugas</h1>
+            <p>Apakah Anda yakin ingin mengembalikan tugas: "{{ task.title }}"?</p>
+            <form action="{{ url_for('restore_task', id=task.id) }}" method="post">
+                <button type="submit">Iya</button>
+                <button type="button" class="back-button" onclick="location.href='{{ url_for('riwayat') }}'">Batal</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mendapatkan tema dari localStorage
+        const savedTheme = localStorage.getItem('theme');
+        // Mengubah body sesuai tema yang diambil
+        document.getElementById('body').classList.add(savedTheme);
+
+        const cardContent = document.querySelector('.card__content');
+
+        if (savedTheme === 'dark') {
+            cardContent.style.backgroundColor = '#011522';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            if (document.body.classList.contains('dark')) {
+                cardContent.style.backgroundColor = '#011522';
+            } else {
+                cardContent.style.backgroundColor = '#c5c5c5';
+            }
+            const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', currentTheme);
+        }
+    </script>
+</body>
+</html>

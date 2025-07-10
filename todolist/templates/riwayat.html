@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Tugas</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Aku-Mars/gambar/main/neko.png" type="image/x-icon">
+    <style>
+        /* Section Body */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0);
+            padding: 20px;
+            margin: 0 auto;
+            margin-top: 10px;
+            max-width: 800px;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border-radius: 5px;
+            box-shadow: 0 0 7px rgba(0, 0, 0);
+            margin: 10px 0;
+            padding: 20px;
+        }
+
+        strong {
+            font-size: 1.2em;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue;
+            margin-right: 10px;
+        }
+
+        #total-tasks-container {
+            text-align: left;
+            margin-left: 15px;
+        }
+
+        /* Section Button */
+        .restore-button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .restore-button:hover {
+            background-color: #005B8F;
+            transform: scale(1.1);
+        }
+
+        button.back-button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1em;
+        }
+
+        button.back-button:hover {
+            background-color: #005B8F;
+            transform: scale(1.1);
+        }
+
+        body.dark {
+            color: white;
+            background-color: #1d1e22;
+            box-shadow: 0 0 3px rgb(255 255 255);
+        }
+    
+        li.dark {
+            background-color: #0F0F0F;
+            color: white;
+            box-shadow: 0 0 3px rgb(194 194 194);
+        }
+
+        /* CSS untuk layar dengan lebar maksimum 600px */
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            ul {
+                padding: 12px;
+                text-align: justify;
+            }
+
+            li {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body id="body">
+    <h2>Riwayat Tugas</h2>
+
+    <div id="total-tasks-container">
+        <button class="back-button" onclick="location.href='{{ url_for('index') }}'">Kembali Ke List Tugas</button>
+    </div>
+
+    <ul id="deleted-task-list">
+        {% for deleted_task in deleted_tasks %}
+            <li>
+                <strong>{{ deleted_task.title }}</strong>
+                <br>
+                <p>Tenggat Waktu: {{ dayNames[deleted_task.due_date.strftime("%A")] }}, {{ deleted_task.due_date.strftime("%d %B %Y") }}</p>
+                <p>Deskripsi: {{ deleted_task.description }}</p>
+                <p>Waktu Selesai: {{ deleted_task.deleted_at.astimezone(pytz.timezone('Asia/Jakarta')).strftime("%d %B %Y %H:%M:%S") }}</p>
+                <a class="restore-button" href="{{ url_for('restore_task', id=deleted_task.id) }}">Kembalikan</a>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <script>
+    // Mendapatkan tema dari localStorage
+    const savedTheme = localStorage.getItem('theme');
+    
+    // Mengubah body sesuai tema yang diambil
+    document.getElementById('body').classList.add(savedTheme);
+
+    // Mengatur tema untuk elemen li berdasarkan preferensi pengguna
+    const listItems = document.querySelectorAll("#deleted-task-list li");
+    listItems.forEach(item => {
+        item.classList.add(savedTheme); // Menambahkan tema pada setiap elemen li
+    });
+    </script>
+</body>
+
+</html>

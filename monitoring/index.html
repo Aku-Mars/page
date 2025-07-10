@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring Host Real-time</title>
+    
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js and required adapters -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns/"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons for a nice touch -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Link ke File CSS Eksternal -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-gray-800">
+
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Monitor Host</h1>
+                <p class="text-gray-500 mt-1">Status langsung domain dan layanan kritis Anda. Interval saat ini: <span id="currentIntervalDisplay" class="font-semibold">30 dtk</span></p>
+            </div>
+            <div class="flex gap-2 mt-4 sm:mt-0">
+                <input type="file" id="importInput" class="hidden" accept=".json">
+                <button id="importBtn" class="btn bg-white text-gray-700 font-semibold px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 flex items-center gap-2">
+                    <i class="ph-bold ph-upload-simple"></i>
+                    <span>Impor</span>
+                </button>
+                <button id="exportBtn" class="btn bg-gray-700 text-white font-semibold px-4 py-2 rounded-md hover:bg-gray-800 flex items-center gap-2">
+                    <i class="ph-bold ph-download-simple"></i>
+                    <span>Ekspor</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Kolom Kiri: Kontrol dan Daftar Host -->
+            <div class="lg:col-span-1 flex flex-col gap-6">
+                <div class="card p-5">
+                    <h2 class="text-xl font-semibold mb-4">Pengaturan Monitoring</h2>
+                     <div class="flex items-center gap-2">
+                        <label for="intervalInput" class="text-sm font-medium text-gray-700">Interval (dtk):</label>
+                        <input type="number" id="intervalInput" min="1" class="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="applyIntervalBtn" class="btn bg-blue-500 text-white font-semibold px-3 py-1 rounded-md hover:bg-blue-600">Terapkan</button>
+                    </div>
+                </div>
+
+                <div class="card p-5">
+                    <h2 class="text-xl font-semibold mb-4">Tambah Host Baru</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="hostInput" placeholder="cth: google.com" class="flex-grow w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="addHostBtn" class="btn bg-blue-500 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-plus"></i>
+                            <span>Tambah</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card p-5 flex-grow flex flex-col">
+                    <h2 class="text-xl font-semibold mb-4">Host yang Dimonitor</h2>
+                    <div id="hostListContainer" class="flex-grow overflow-y-auto max-h-[400px] pr-2">
+                        <div id="hostList" class="space-y-1"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div id="discordSettingsHeader" class="p-5 flex justify-between items-center cursor-pointer hover:bg-gray-50 rounded-t-lg">
+                        <h2 class="text-xl font-semibold">Notifikasi Discord</h2>
+                        <i id="discordChevron" class="ph ph-caret-down text-xl transition-transform"></i>
+                    </div>
+                    <div id="discordSettingsContent" class="hidden px-5 pb-5 border-t border-gray-200">
+                        <div class="space-y-4 mt-4">
+                            <div>
+                                <label for="webhookGeneral" class="block text-sm font-medium text-gray-700 mb-1">Webhook untuk Pulih/Online</label>
+                                <input type="password" id="webhookGeneral" placeholder="Tempel URL Webhook Discord" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label for="webhookIssues" class="block text-sm font-medium text-gray-700 mb-1">Webhook untuk Masalah/Offline</label>
+                                <input type="password" id="webhookIssues" placeholder="Tempel URL Webhook Discord" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <hr/>
+                            <div>
+                                <label for="webhookReport" class="block text-sm font-medium text-gray-700 mb-1">Webhook untuk Laporan Berkala</label>
+                                <input type="password" id="webhookReport" placeholder="Tempel URL Webhook Discord" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-700">Aktifkan Laporan Berkala</span>
+                                 <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" id="enableReportToggle" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <button id="saveWebhooksBtn" class="btn w-full bg-gray-700 text-white font-semibold px-4 py-2 rounded-md hover:bg-gray-800">Simpan Pengaturan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Grafik dan Visualisasi -->
+            <div class="lg:col-span-2 card p-5 min-h-[500px] flex flex-col">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                    <h2 class="text-xl font-semibold">Riwayat Waktu Respons</h2>
+                    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                        <button data-filter="1h" class="time-filter-btn px-3 py-1 text-sm font-medium rounded-md hover:bg-gray-200">1 Jam</button>
+                        <button data-filter="24h" class="time-filter-btn px-3 py-1 text-sm font-medium rounded-md bg-blue-600 text-white">24 Jam</button>
+                        <button data-filter="7d" class="time-filter-btn px-3 py-1 text-sm font-medium rounded-md hover:bg-gray-200">7 Hari</button>
+                        <button data-filter="30d" class="time-filter-btn px-3 py-1 text-sm font-medium rounded-md hover:bg-gray-200">1 Bulan</button>
+                        <button data-filter="all" class="time-filter-btn px-3 py-1 text-sm font-medium rounded-md hover:bg-gray-200">Semua</button>
+                    </div>
+                </div>
+                <div class="relative flex-grow">
+                    <div id="chartContainer" class="hidden absolute inset-0">
+                        <canvas id="pingChart"></canvas>
+                    </div>
+                    <div id="chartPlaceholder" class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <i class="ph ph-chart-line-up text-6xl text-gray-300"></i>
+                            <p class="mt-2">Pilih satu atau lebih host untuk menampilkan grafik.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 text-white p-4 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-20 transition-transform duration-300 ease-out z-50">
+        <i id="toast-icon" class="text-2xl"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm m-4">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Konfirmasi Perubahan</h3>
+            <p id="modalText" class="text-gray-600 mb-6"></p>
+            <div class="flex justify-end gap-3">
+                <button id="modalCancelBtn" class="btn px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
+                <button id="modalConfirmBtn" class="btn px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Link ke File JavaScript Eksternal -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>

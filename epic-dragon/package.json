@@ -1,0 +1,31 @@
+{
+  "name": "pixel-realms-dragon-knights-fury",
+  "version": "1.0.0",
+  "description": "Embark on a text-based MMORPG adventure! Choose your class, battle monsters, collect loot, and conquer 25 stages of increasing difficulty, culminating in a battle against the Dragon Knight and perhaps... even darker forces.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [
+    "rpg",
+    "text-based",
+    "fantasy",
+    "adventure",
+    "pixel-art",
+    "react"
+  ],
+  "author": "That's Mars Imagine (Adapted by AI)",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@google/generative-ai": "^0.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  },
+  "private": true
+}

@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Realms: Dragon Knight's Fury</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Targeting a specific pixel font if available, otherwise fallback */
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    body {
+      font-family: 'Press Start 2P', cursive, sans-serif;
+      background-color: #1a1a2e; /* Dark blue-purple background */
+      color: #e0e0e0; /* Light gray text */
+      image-rendering: pixelated; /* Ensures images look pixelated */
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      overflow-x: hidden; /* Prevent horizontal scroll with shake */
+    }
+    .pixel-border {
+      border-style: solid;
+      border-width: 4px;
+      border-image-slice: 2;
+      border-image-width: 2;
+      border-image-repeat: stretch;
+      border-image-source: url('data:image/svg+xml;utf8,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="6" height="6"><g fill="%23555"><path d="M0 0h2v2H0zM2 2h2v2H2zM4 0h2v2H4zM0 4h2v2H0zM4 4h2v2H4z"/></g></svg>');
+      padding: 1px; /* Adjust as needed for inner content */
+    }
+    .pixel-button {
+      font-family: 'Press Start 2P', cursive, sans-serif;
+      background-color: #4a4e69; /* Muted purple */
+      color: #f2e9e4; /* Creamy white */
+      border: 2px solid #22223b; /* Darker purple border */
+      padding: 8px 16px;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px #22223b; /* Pixel shadow */
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
+    }
+    .pixel-button:hover {
+      background-color: #6b708f;
+      box-shadow: 1px 1px 0px #22223b;
+      transform: translate(1px, 1px);
+    }
+    .pixel-button:active {
+      background-color: #3a3d59;
+      box-shadow: 0px 0px 0px #22223b;
+      transform: translate(2px, 2px);
+    }
+    /* Custom scrollbar for pixel aesthetic */
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #22223b; /* Dark purple track */
+      border: 1px solid #4a4e69;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #9a8c98; /* Muted pink/grey thumb */
+      border: 1px solid #22223b;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #c9ada7;
+    }
+    .text-shadow-pixel {
+      text-shadow: 1px 1px 0px #000, 2px 2px 0px #000; /* Simple pixel shadow */
+    }
+
+    /* Health/MP Bar Animation */
+    .health-bar-fill, .mp-bar-fill {
+      transition: width 0.5s ease-in-out;
+    }
+
+    /* Shake Animation */
+    .shake-animation {
+      animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+      transform: translate3d(0, 0, 0);
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0) rotate(-1deg); }
+      20%, 80% { transform: translate3d(2px, 0, 0) rotate(1deg); }
+      30%, 50%, 70% { transform: translate3d(-2px, 0, 0) rotate(-2deg); }
+      40%, 60% { transform: translate3d(2px, 0, 0) rotate(2deg); }
+    }
+
+    /* Critical Hit Shake Animation */
+    .shake-animation-crit {
+      animation: shake-crit 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      transform: translate3d(0, 0, 0);
+    }
+    @keyframes shake-crit {
+      10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-2deg) scale(1.01); }
+      20%, 80% { transform: translate3d(4px, 0, 0) rotate(2deg) scale(1.01); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0) rotate(-3deg) scale(1.02); }
+      40%, 60% { transform: translate3d(4px, 0, 0) rotate(3deg) scale(1.02); }
+    }
+    
+    /* Floating Numbers/Text */
+    .floating-number-container {
+      position: relative; /* Or absolute, depending on where it's placed */
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* So it doesn't interfere with clicks */
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 1.1rem; /* Slightly larger for impact */
+      font-weight: bold;
+      animation: floatUpAndFade 1.5s ease-out forwards;
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-shadow: 1px 1px 0 #000;
+      z-index: 100;
+    }
+    .floating-text.damage { color: #ff4d4d; /* Bright Red */ }
+    .floating-text.heal { color: #4dff4d; /* Bright Green */ }
+    .floating-text.resist { 
+        color: #87CEEB; /* Sky Blue */ 
+        font-size: 0.9rem;
+    }
+    .floating-text.buff { color: #FFD700; /* Gold */ }
+    .floating-text.debuff { color: #DA70D6; /* Orchid */ }
+    .floating-text.xp { color: #AFEEEE; /* PaleTurquoise */ }
+    .floating-text.gold { color: #FFDF00; /* Gold (slightly different) */ }
+    .floating-text.evade { color: #ADD8E6; /* Light Blue */ font-style: italic; }
+    .floating-text.crit { 
+        color: #FFA500; /* Orange */ 
+        font-size: 1.4rem; 
+        font-weight: bolder; 
+        text-shadow: 1px 1px 0 #000, 0 0 5px #FF8C00; /* Added a glow */
+    }
+    .floating-text.spell_indicator {
+        font-size: 1.2rem; /* A bit larger for spell names */
+        font-weight: bold;
+        /* Color will be applied inline via style attribute */
+    }
+
+
+    @keyframes floatUpAndFade {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-70px) scale(0.7); /* Increased float distance */
+      }
+    }
+
+    /* Input fields for Auth */
+    .pixel-input {
+      font-family: 'Press Start 2P', cursive, sans-serif;
+      background-color: #2a2e49;
+      color: #e0e0e0;
+      border: 2px solid #4a4e69;
+      padding: 10px;
+      outline: none;
+    }
+    .pixel-input:focus {
+      border-color: #9a8c98;
+    }
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.1.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.1.0/client",
+    "@@google/generative-ai/actual": "https://esm.sh/@google/generative-ai@0.16.0",
+    "@google/genai": "data:text/javascript,import { GoogleGenerativeAI } from '@@google/generative-ai/actual'; export { GoogleGenerativeAI as GoogleGenAI };",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@/App": "./App.js",
+    "@/soundManager": "./soundManager.js"
+  }
+}
+</script>
+
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!-- Developer tools can be conditionally rendered by React here -->
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

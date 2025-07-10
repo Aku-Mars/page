@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List PSTI C</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Aku-Mars/gambar/main/neko.png" type="image/x-icon">
+    <style>
+
+        /* Section Body */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0);
+            padding: 20px;
+            margin: 0 auto;
+            margin-top: 10px; 
+            max-width: 800px;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 35px;
+        }
+
+        li {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border-radius: 5px;
+            box-shadow: 0 0 7px rgba(0, 0, 0);
+            margin: 10px 0;
+            padding: 20px;
+            text-align: justify;
+        }
+
+        strong {
+            font-size: 1.2em;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue;
+            margin-right: 10px;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        form {
+            text-align: left;
+            margin-left: 15px;
+        }
+
+        label, input, textarea {
+            display: block;
+            margin: 10px 0;
+        }
+
+        #total-tasks-container {
+            text-align: left;
+            margin-left: 15px;
+        }
+
+        /* Section Button */
+        button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #008CBA;
+            transform: scale(1.1);
+        }
+        
+        #close-popup:hover {
+            background-color: #008CBA;
+            transform: scale(1.1);
+        }
+
+        .riwayat-button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .riwayat-button:hover {
+            background-color: #005B8F;
+            transform: scale(1.1);
+        }
+
+        .edit-button, .delete-button {
+            background-color: #008CBA;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-top: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-button {
+            background-color: #005B8F;
+        }
+
+        .edit-button:hover, .delete-button:hover {
+            background-color: #005B8F;
+            transform: scale(1.1);
+        }
+        
+        .delete-button:hover {
+            background-color: #008CBA;
+        }
+
+        /* Section Theme */
+        #theme-toggle {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 0 7px rgba(0, 0, 0);
+            padding: 20px;
+            margin: 20px;
+            max-width: 800px;
+        }
+
+        /* Section Popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-top: 20%;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        /* Section Tema Gelap */
+        body.dark {
+            color: white; 
+            background-color: #1d1e22;
+            box-shadow: 0 0 3px rgb(255 255 255);
+        }
+
+        li.dark {
+            background-color: #0F0F0F;
+            color: white;
+            box-shadow: 0 0 3px rgb(194 194 194);
+        }
+        
+        #theme-toggle.dark {
+            background-color: #0F0F0F;
+            color: white;
+            box-shadow: 0 0 3px rgb(194 194 194);
+        }
+
+        .popup.dark .popup-content {
+            background-color: #0F0F0F;
+            color: white; 
+            box-shadow: 0 0 3px rgb(194 194 194);
+        }
+
+        /* CSS untuk layar dengan lebar maksimum 600px */
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 16px; 
+                padding: 10px;
+            }
+
+            ul {
+                padding: 12px;
+                text-align: justify;
+            }
+
+            li {
+                padding: 12px; 
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #theme-toggle {
+                font-size: 16px;
+                padding: 10px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body id="body">
+    <h1>TUGAS PSTI-C</h1>
+    <img src="https://raw.githubusercontent.com/Aku-Mars/gambar/main/signbot.gif">
+    
+    <div id="total-tasks-container">
+        <h2>Total Tugas: <span id="totalTasks">{{ tasks|length }}</span></h2>
+        <a class="riwayat-button" href="{{ url_for('riwayat') }}">Buka Riwayat</a>
+        <a class="riwayat-button" href=#theme-toggle>Buat Tugas</a>
+    </div>
+    <ul id="task-list">
+        {% for task in tasks %}
+            <li data-due-date="{{ task.due_date }}" data-task-id="{{ task.id }}">
+                <strong>{{ task.title }}</strong>
+                <br>
+                <!-- Ganti nama hari dalam bahasa Inggris dengan bahasa Indonesia -->
+                <p>Tenggat Waktu: {{ dayNames[task.due_date.strftime("%A")] }}, {{ task.due_date.strftime("%d %B %Y") }}</p>
+                <p>{{ task.description }}</p>
+                <span class="button-container">
+                    <a class="edit-button" href="{{ url_for('edit_task', id=task.id) }}">Edit</a>
+                    <a class="delete-button" href="{{ url_for('delete_task', id=task.id) }}">Selesai</a>
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Tambahkan Tugas Baru</h2>
+    <form method="POST" action="{{ url_for('add_task') }}">
+        <label for="title">Tugas:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="due_date">Tenggat Waktu:</label>
+        <input type="date" id="due_date" name="due_date">
+        <label for="description">Deskripsi / Informasi Tambahan:</label>
+        <textarea id="description" name="description"></textarea>
+        <button type="submit">Tambahkan</button>
+    </form>
+
+    <div id="theme-toggle">
+        <label for="theme">Pilih tema: </label>
+        <select id="theme">
+            <option value="light">Terang</option>
+            <option value="dark">Gelap</option>
+        </select>
+    </div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <p>Perhatian! Jangan Asal Hapus, Ubah Ataupun Tambah Karena Ini List Bersama</p>
+            <button id="close-popup">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+
+        //Sorting
+        const taskList = document.getElementById("task-list");
+
+        // Mengambil semua elemen li dan mengubahnya menjadi array
+        const tasks = Array.from(taskList.children);
+    
+        // Mengurutkan elemen-elemen berdasarkan tanggal tenggat waktu
+        tasks.sort((a, b) => {
+            const dateA = new Date(a.getAttribute("data-due-date"));
+            const dateB = new Date(b.getAttribute("data-due-date"));
+            return dateA - dateB;
+        });
+    
+        // Memasukkan elemen-elemen yang telah diurutkan kembali ke dalam ul
+        tasks.forEach(task => taskList.appendChild(task));
+
+        // Fungsi untuk memperbarui penghitung jumlah tugas
+        function updateTaskCount() {
+            const totalTasksElement = document.getElementById("totalTasks");
+            const totalTasks = document.querySelectorAll("#task-list li").length;
+            totalTasksElement.textContent = totalTasks;
+        }
+
+        // Panggil fungsi untuk memperbarui penghitung jumlah tugas saat halaman dimuat
+        document.addEventListener("DOMContentLoaded", updateTaskCount);
+
+        // Fungsi untuk menampilkan konfirmasi sebelum menghapus tugas
+        function confirmDelete(taskId) {
+            const isConfirmed = confirm("Apakah Anda yakin ingin menghapus tugas ini?");
+            if (isConfirmed) {
+                // Jika dikonfirmasi, arahkan ke halaman delete_task dengan ID tugas
+                window.location.href = "/delete_task/" + taskId;
+            }
+        }
+        
+        //Tema
+        const themeSelect = document.getElementById("theme");
+        const body = document.getElementById("body"); // Ubah sesuai dengan id yang telah ditambahkan
+    
+        // Set tema saat halaman dimuat
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            themeSelect.value = 'dark';
+            applyDarkModeStyles(); // Terapkan gaya untuk mode gelap
+        } else {
+            body.classList.remove('dark');
+            themeSelect.value = 'light';
+        }
+
+        themeSelect.addEventListener('change', function () {
+            const selectedTheme = themeSelect.value;
+            localStorage.setItem('theme', selectedTheme);
+            body.classList.toggle('dark', selectedTheme === 'dark');
+            if (selectedTheme === 'dark') {
+                applyDarkModeStyles(); // Terapkan gaya untuk mode gelap
+            } else {
+                removeDarkModeStyles(); // Hapus gaya untuk mode gelap
+            }
+        });
+
+        // Fungsi untuk menerapkan gaya tema gelap
+        function applyDarkModeStyles() {
+            const listItems = document.querySelectorAll("#task-list li");
+            listItems.forEach(item => item.classList.add("dark"));
+            document.getElementById("theme-toggle").classList.add("dark");
+            document.getElementById("body").style.padding = "20px"; // Atur padding untuk body dalam tema gelap
+        }
+
+        // Fungsi untuk menghapus gaya tema gelap
+        function removeDarkModeStyles() {
+            const listItems = document.querySelectorAll("#task-list li");
+            listItems.forEach(item => item.classList.remove("dark"));
+            document.getElementById("theme-toggle").classList.remove("dark");
+            document.getElementById("body").style.padding = "20px"; // Atur padding untuk body dalam tema terang
+        }
+
+        // Fungsi untuk menyesuaikan tema pop-up
+        function setPopupTheme(selectedTheme) {
+            const popup = document.getElementById("popup");
+            if (selectedTheme === "dark") {
+                popup.classList.add("dark");
+            } else {
+                popup.classList.remove("dark");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+        themeSelect.addEventListener("change", function () {
+            localStorage.setItem('theme', themeSelect.value);
+            setPopupTheme(themeSelect.value);
+            body.classList.toggle('dark', themeSelect.value === 'dark');
+        });
+
+        function setPopupTheme(selectedTheme) {
+            const popup = document.getElementById("popup");
+            if (selectedTheme === "dark") {
+                popup.classList.add("dark");
+            } else {
+                popup.classList.remove("dark");
+            }
+        }
+        });
+        
+        // JavaScript untuk menampilkan pop-up hanya sekali setiap 1 jam
+        document.addEventListener("DOMContentLoaded", function () {
+            const popup = document.getElementById("popup");
+            const closeButton = document.getElementById("close-popup");
+            const themeSelect = document.getElementById("theme");
+            const body = document.getElementById("body");
+
+        // Mengecek apakah pop-up pernah ditampilkan sebelumnya (Default 24 Jam)
+        const lastPopupTime = localStorage.getItem('lastPopupTime');
+        const currentTime = new Date().getTime();
+
+        if (!lastPopupTime || (currentTime - lastPopupTime) > (24 * 60 * 60 * 1000)) {
+            // Tampilkan pop-up jika belum pernah ditampilkan atau sudah lebih dari 24 jam
+            popup.style.display = "block";
+            // Simpan waktu terakhir pop-up ditampilkan
+            localStorage.setItem('lastPopupTime', currentTime);
+        } else {
+            // Sembunyikan pop-up jika tidak memenuhi kondisi di atas
+            popup.style.display = "none";
+        }
+
+        // Tutup pop-up ketika tombol "Tutup" ditekan
+        closeButton.addEventListener("click", function () {
+            popup.style.display = "none";
+        });
+
+        // Panggil fungsi untuk mengatur tema pop-up saat halaman dimuat
+        setPopupTheme(themeSelect.value);
+
+        // Ketika pengguna mengganti tema, perbarui tema pop-up
+        themeSelect.addEventListener("change", function () {
+            localStorage.setItem('theme', themeSelect.value);
+            setPopupTheme(themeSelect.value);
+            body.classList.toggle('dark', themeSelect.value === 'dark');
+        });
+
+        // Fungsi untuk menyesuaikan tema pop-up
+        function setPopupTheme(selectedTheme) {
+            if (selectedTheme === "dark") {
+                popup.classList.add("dark");
+            } else {
+                popup.classList.remove("dark");
+            }
+        }
+        });
+    
+    </script>
+</body>
+</html>

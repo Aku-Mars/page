@@ -1,0 +1,52 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://172.20.179.173:3001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 424-623-642
+127.0.0.1 - - [09/Jul/2025 21:28:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:28:19] "GET / HTTP/1.1" 200 -
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://172.20.179.173:3001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 424-623-642
+127.0.0.1 - - [09/Jul/2025 21:51:32] "GET / HTTP/1.1" 200 -
+/var/www/html/todolist/app.py:102: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  task = Task.query.get(id)
+127.0.0.1 - - [09/Jul/2025 21:51:34] "GET /edit_task/3 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:01] "GET /edit_task/3 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:08] "POST /edit_task/3 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:08] "GET / HTTP/1.1" 200 -
+/var/www/html/todolist/app.py:123: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  task = Task.query.get(id)
+127.0.0.1 - - [09/Jul/2025 21:54:12] "GET /delete_task/3 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:13] "POST /delete_task/3 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:13] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:16] "GET /riwayat HTTP/1.1" 200 -
+/var/www/html/todolist/app.py:172: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  deleted_task = DeletedTask.query.get(id)
+127.0.0.1 - - [09/Jul/2025 21:54:17] "GET /restore_task/1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:19] "POST /restore_task/1 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:20] "GET /delete_task/4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:21] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:22] "GET /edit_task/4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:38] "POST /edit_task/4 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:38] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:40] "GET /delete_task/4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:41] "POST /delete_task/4 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:42] "GET /riwayat HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:47] "GET /restore_task/2 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 21:54:48] "POST /restore_task/2 HTTP/1.1" 302 -
+127.0.0.1 - - [09/Jul/2025 21:54:48] "GET / HTTP/1.1" 200 -
