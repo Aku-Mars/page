@@ -49,15 +49,18 @@ Isi file `000-default.conf` dengan konten berikut:
     RewriteEngine On
     RewriteCond %{HTTP_HOST} ^8\.215\.1\.198$
     RewriteRule ^ https://akumars.my.id%{REQUEST_URI} [R=301,L]
+    
+    RedirectMatch permanent ^/list$ /list/
+    RedirectMatch permanent ^/game$ /game/
 
     # === Reverse‑Proxy Aplikasi ===
     # Game (127.0.0.1:3001) di path /list
-    ProxyPass        /list  http://127.0.0.1:3001/
-    ProxyPassReverse /list  http://127.0.0.1:3001/
+    ProxyPass        /list/  http://127.0.0.1:3001/
+    ProxyPassReverse /list/  http://127.0.0.1:3001/
 
     # Dashboard (127.0.0.1:5173) di path /game
-    ProxyPass        /game  http://127.0.0.1:5173/
-    ProxyPassReverse /game  http://127.0.0.1:5173/
+    ProxyPass        /game/  http://127.0.0.1:5173/
+    ProxyPassReverse /game/  http://127.0.0.1:5173/
 
     # Tambahkan lagi blok ProxyPass/Reverse sesuai port aplikasi lain
 
@@ -71,6 +74,7 @@ Isi file `000-default.conf` dengan konten berikut:
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
+
 ```
 
 Aktifkan situs dan reload Apache:
@@ -101,12 +105,15 @@ Contoh isi `000-default-le-ssl.conf` setelah dibuat oleh Certbot (pastikan blok 
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/html
 
-    # === Reverse‑Proxy Aplikasi (HTTPS) ===
-    ProxyPass        /list  http://127.0.0.1:3001/
-    ProxyPassReverse /list  http://127.0.0.1:3001/
+    RedirectMatch permanent ^/list$ /list/
+    RedirectMatch permanent ^/game$ /game/
 
-    ProxyPass        /game  http://127.0.0.1:5173/
-    ProxyPassReverse /game  http://127.0.0.1:5173/
+    # === Reverse‑Proxy Aplikasi (HTTPS) ===
+    ProxyPass        /list/  http://127.0.0.1:3001/
+    ProxyPassReverse /list/  http://127.0.0.1:3001/
+
+    ProxyPass        /game/  http://127.0.0.1:5173/
+    ProxyPassReverse /game/  http://127.0.0.1:5173/
 
     # Tambahkan lagi blok ProxyPass/Reverse sesuai port aplikasi lain
 
@@ -126,6 +133,7 @@ Contoh isi `000-default-le-ssl.conf` setelah dibuat oleh Certbot (pastikan blok 
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 </IfModule>
+
 ```
 
 Uji konfigurasi Apache dan reload:
