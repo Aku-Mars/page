@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Construction</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        #countdown {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚧 Web Still Under Construction 🚧</h1>
+        <p>Anda akan dialihkan ke halaman portofolio dalam <span id="countdown">5</span> detik.</p>
+        <p>Want to reach me? email <a href="mailto:marifinsyam73@gmail.com">marifinsyam73@gmail.com</a></p>
+    </div>
+
+<script>
+    // Waktu awal hitung mundur dalam detik
+    let seconds = 5;
+
+    // Ambil elemen span dengan id 'countdown' untuk menampilkan angka
+    const countdownElement = document.getElementById('countdown');
+
+    // Jalankan fungsi setiap 1 detik (1000 milidetik)
+    const interval = setInterval(() => {
+        // Kurangi waktu sebanyak 1 detik
+        seconds--;
+
+        // Perbarui teks pada elemen span dengan sisa waktu
+        countdownElement.textContent = seconds;
+
+        // Jika hitungan mundur selesai (mencapai 0)
+        if (seconds <= 0) {
+            // Hentikan interval agar tidak berjalan terus
+            clearInterval(interval);
+            
+            // Alihkan halaman ke URL tujuan
+            window.location.href = 'https://akumars.my.id/portofolio';
+        }
+    }, 1000);
+</script>
+
+</body>
+</html>
