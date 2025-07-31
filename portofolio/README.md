@@ -6,7 +6,7 @@ Ini adalah proyek web portofolio pribadi yang dilengkapi dengan fitur penghitung
 
 -   **Portofolio Dinamis:** Menampilkan profil, pengalaman, proyek, dan sertifikat.
 -   **Penghitung Pengunjung:** Melacak jumlah pengunjung unik menggunakan database MySQL.
--   **Notifikasi Discord Lanjutan:** Memberikan notifikasi real-time untuk setiap pengunjung baru, termasuk **jam akses, jenis perangkat (Mobile/PC/Tablet), dan jumlah kunjungan IP yang sama pada hari itu**.
+-   **Notifikasi Discord Lanjutan:** Memberikan notifikasi real-time untuk setiap pengunjung baru, termasuk **Hari, Jam Akses, Jenis Perangkat, Sistem Operasi, Browser, Lokasi (Kota, Wilayah, Negara), ISP, dan jumlah kunjungan IP pada hari itu**.
 -   **Desain Responsif:** Dibuat dengan Tailwind CSS untuk tampilan optimal di semua perangkat.
 -   **Animasi Scroll:** Menggunakan AOS (Animate On Scroll) untuk efek visual yang menarik.
 
@@ -69,6 +69,8 @@ Selanjutnya, konfigurasikan skrip backend untuk terhubung ke database Anda.
 ### 3. Konfigurasi Webhook Discord (Opsional)
 
 Jika Anda ingin menerima notifikasi pengunjung, perbarui URL webhook di file `api/counter.php`.
+
+**Penting:** Pastikan URL webhook Discord Anda lengkap dan tidak terpotong. URL yang salah dapat menyebabkan notifikasi gagal terkirim.
 
 1.  Buka file `api/counter.php`.
 2.  Ganti nilai variabel `webhook_url` dengan URL webhook Discord Anda:

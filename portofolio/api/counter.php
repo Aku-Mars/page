@@ -1,38 +1,34 @@
 <?php
-// Konfigurasi database
-$host = '8.215.1.198'; // Ganti dengan host Anda
-$user = 'admin'; // Ganti dengan user Anda
-$password = 'Mars123//'; // Ganti dengan password Anda
-$dbname = 'porto_db'; // Ganti dengan nama database Anda
+// --- KONFIGURASI ---
+$host = '8.215.1.198';
+$user = 'admin';
+$password = 'Mars123//';
+$dbname = 'porto_db';
+$webhook_url = 'https://discord.com/api/webhooks/1396436570608898068/24HxXVISytveEbG8PWG4KqV03zyau6UeQncI3mAM_aTe9D5mqGFK8Z4gmBK4iblrXWTZ';
 
-// Buat koneksi
+// --- KONEKSI DATABASE ---
+date_default_timezone_set('Asia/Jakarta');
 $conn = new mysqli($host, $user, $password, $dbname);
 
-// Cek koneksi
 if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode(['error' => 'Koneksi database gagal: ' . $conn->connect_error]);
+    exit();
 }
 
-// --- Logic Utama ---
-
-// 1. Dapatkan informasi pengunjung
+// --- PENCATATAN PENGUNJUNG ---
 $ip_address = $_SERVER['REMOTE_ADDR'];
 $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown';
-date_default_timezone_set('Asia/Jakarta'); // Set timezone ke WIB
 
-// 2. Perbarui total pengunjung (tabel views)
 $conn->query("UPDATE views SET count = count + 1 WHERE id = 1");
 
-// 3. Catat kunjungan saat ini (tabel visit_logs)
-$log_sql = "INSERT INTO visit_logs (ip_address, visit_time) VALUES (?, NOW())";
-$log_stmt = $conn->prepare($log_sql);
+$log_stmt = $conn->prepare("INSERT INTO visit_logs (ip_address, visit_time) VALUES (?, NOW())");
 $log_stmt->bind_param("s", $ip_address);
 $log_stmt->execute();
 $log_stmt->close();
 
-// 4. Hitung jumlah kunjungan dari IP ini hari ini
-$count_today_sql = "SELECT COUNT(*) as today_count FROM visit_logs WHERE ip_address = ? AND DATE(visit_time) = CURDATE()";
-$count_stmt = $conn->prepare($count_today_sql);
+$count_stmt = $conn->prepare("SELECT COUNT(*) as today_count FROM visit_logs WHERE ip_address = ? AND DATE(visit_time) = CURDATE()");
 $count_stmt->bind_param("s", $ip_address);
 $count_stmt->execute();
 $count_result = $count_stmt->get_result();
@@ -40,93 +36,158 @@ $count_row = $count_result->fetch_assoc();
 $visits_today = $count_row['today_count'];
 $count_stmt->close();
 
-// 5. Ambil total pengunjung
 $result = $conn->query("SELECT count FROM views WHERE id = 1");
 $row = $result->fetch_assoc();
 $total_views = $row['count'];
 
-// Tutup koneksi database
 $conn->close();
 
-// --- Fungsi Bantuan ---
-function getDeviceType($userAgent) {
-    if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', $userAgent)) {
-        return 'Tablet';
+// --- FUNGSI BANTUAN ---
+function getOS($userAgent) {
+    $os_platform = "Unknown OS";
+    $os_array = [
+        '/windows nt 10/i'      =>  'Windows 10',
+        '/windows nt 6.3/i'     =>  'Windows 8.1',
+        '/windows nt 6.2/i'     =>  'Windows 8',
+        '/windows nt 6.1/i'     =>  'Windows 7',
+        '/windows nt 6.0/i'     =>  'Windows Vista',
+        '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+        '/windows nt 5.1/i'     =>  'Windows XP',
+        '/windows xp/i'         =>  'Windows XP',
+        '/windows nt 5.0/i'     =>  'Windows 2000',
+        '/windows me/i'         =>  'Windows ME',
+        '/win98/i'              =>  'Windows 98',
+        '/win95/i'              =>  'Windows 95',
+        '/win16/i'              =>  'Windows 3.11',
+        '/macintosh|mac os x/i' =>  'Mac OS X',
+        '/mac_powerpc/i'        =>  'Mac OS 9',
+        '/linux/i'              =>  'Linux',
+        '/ubuntu/i'             =>  'Ubuntu',
+        '/iphone/i'             =>  'iPhone',
+        '/ipod/i'               =>  'iPod',
+        '/ipad/i'               =>  'iPad',
+        '/android/i'            =>  'Android',
+        '/blackberry/i'         =>  'BlackBerry',
+        '/webos/i'              =>  'Mobile'
+    ];
+    foreach ($os_array as $regex => $value) {
+        if (preg_match($regex, $userAgent)) {
+            $os_platform = $value;
+        }
     }
-    if (preg_match('/(mobi|ipod|phone|blackberry|opera mini|fennec|minimo|symbian|psp|nintendo ds)/i', $userAgent)) {
-        return 'Mobile';
-    }
-    if (preg_match('/(windows|macintosh|linux)/i', $userAgent)) {
-        return 'PC/Desktop';
-    }
-    return 'Unknown';
+    return $os_platform;
 }
 
-// --- Webhook Notification Logic ---
+function getBrowser($userAgent) {
+    $browser = "Unknown Browser";
+    $browser_array = [
+        '/msie/i'       =>  'Internet Explorer',
+        '/firefox/i'    =>  'Firefox',
+        '/safari/i'     =>  'Safari',
+        '/chrome/i'     =>  'Chrome',
+        '/edge/i'       =>  'Edge',
+        '/opera/i'      =>  'Opera',
+        '/netscape/i'   =>  'Netscape',
+        '/maxthon/i'    =>  'Maxthon',
+        '/konqueror/i'  =>  'Konqueror',
+        '/mobile/i'     =>  'Handheld Browser'
+    ];
+    foreach ($browser_array as $regex => $value) {
+        if (preg_match($regex, $userAgent)) {
+            $browser = $value;
+        }
+    }
+    return $browser;
+}
 
-// Dapatkan informasi tambahan
+function getDeviceType($userAgent) {
+    if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', $userAgent)) return 'Tablet';
+    if (preg_match('/(mobi|ipod|phone|blackberry|opera mini|fennec|minimo|symbian|psp|nintendo ds)/i', $userAgent)) return 'Mobile';
+    return 'PC/Desktop';
+}
+
+// --- NOTIFIKASI WEBHOOK ---
 $device_type = getDeviceType($user_agent);
-$access_time = date('H:i:s'); // Waktu dalam format Jam:Menit:Detik
+$os = getOS($user_agent);
+$browser = getBrowser($user_agent);
 
-// Dapatkan informasi geolokasi dari IP
-$geoip_url = "http://ip-api.com/json/{$ip_address}";
-$geoip_data = json_decode(file_get_contents($geoip_url), true);
+// Terjemahkan hari dan bulan ke Bahasa Indonesia
+$day_en = date('l');
+$month_en = date('F');
 
-$country = isset($geoip_data['country']) ? $geoip_data['country'] : 'Unknown';
-$region = isset($geoip_data['regionName']) ? $geoip_data['regionName'] : 'Unknown';
-$city = isset($geoip_data['city']) ? $geoip_data['city'] : 'Unknown';
-$isp = isset($geoip_data['isp']) ? $geoip_data['isp'] : 'Unknown';
+$days_id = [
+    'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+    'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+];
 
-// Siapkan data untuk dikirim ke Discord
-$webhook_url = 'https://discord.com/api/webhooks/1396436570608898068/24HxXVISytveEbG8PWG4KqV03zyau6UeQncI3mAM_aTe9D5mqGFK8KqV03zyau6UeQncI3mAM_aTe9D5mqGFK8iblrXWTZ';
+$months_id = [
+    'January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret', 'April' => 'April',
+    'May' => 'Mei', 'June' => 'Juni', 'July' => 'Juli', 'August' => 'Agustus',
+    'September' => 'September', 'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'
+];
+
+$day_id = $days_id[$day_en];
+$month_id = $months_id[$month_en];
+
+$access_time = $day_id . date(', d ') . $month_id . date(' Y H:i:s'); // Format: Hari, Tanggal Bulan Tahun Jam:Menit:Detik
+
+$country = 'Unknown';
+$region = 'Unknown';
+$city = 'Unknown';
+$isp = 'Unknown';
+
+try {
+    $geoip_url = "http://ip-api.com/json/{$ip_address}";
+    $geoip_json = @file_get_contents($geoip_url);
+    if ($geoip_json) {
+        $geoip_data = json_decode($geoip_json, true);
+        if ($geoip_data && $geoip_data['status'] == 'success') {
+            $country = $geoip_data['country'] ?: 'Unknown';
+            $region = $geoip_data['regionName'] ?: 'Unknown';
+            $city = $geoip_data['city'] ?: 'Unknown';
+            $isp = $geoip_data['isp'] ?: 'Unknown';
+        }
+    }
+} catch (Exception $e) {
+    // Biarkan nilai default jika terjadi error
+}
+
 $timestamp = date("c");
-
 $embed = [
-    "title" => "🚀 Pengunjung Baru di Portofolio Anda!",
+    "title" => "🚀 Pengunjung Baru di Portofolio!",
     "description" => "Seseorang baru saja mengunjungi halaman portofolio Anda.",
     "color" => hexdec("00FF00"),
     "fields" => [
-        [
-            "name" => "📍 Lokasi",
-            "value" => "**Kota:** {$city}\n**Wilayah:** {$region}\n**Negara:** {$country}",
-            "inline" => true
-        ],
-        [
-            "name" => "🌐 Jaringan",
-            "value" => "**Alamat IP:** {$ip_address}\n**ISP:** {$isp}",
-            "inline" => true
-        ],
-        [
-            "name" => "🔍 Info Tambahan",
-            "value" => "**Jam Akses:** {$access_time}\n**Perangkat:** {$device_type}\n**Kunjungan IP Hari Ini:** {$visits_today}",
-            "inline" => false
-        ],
-        [
-            "name" => "💻 Perangkat & Browser",
-            "value" => "```{$user_agent}```",
-            "inline" => false
-        ]
+        ["name" => "🗓️ Waktu Akses", "value" => $access_time, "inline" => false],
+        ["name" => "📍 Lokasi", "value" => "**Kota:** {$city}
+**Wilayah:** {$region}
+**Negara:** {$country}", "inline" => true],
+        ["name" => "🌐 Jaringan", "value" => "**Alamat IP:** {$ip_address}
+**ISP:** {$isp}", "inline" => true],
+        ["name" => "💻 Info Perangkat", "value" => "**Tipe:** {$device_type}
+**OS:** {$os}
+**Browser:** {$browser}", "inline" => true],
+        ["name" => "📈 Statistik", "value" => "**Kunjungan IP Hari Ini:** {$visits_today}", "inline" => true],
+        ["name" => "🕵️ User Agent", "value" => "```{$user_agent}```", "inline" => false]
     ],
-    "footer" => [
-        "text" => "Total Pengunjung: {$total_views}"
-    ],
+    "footer" => ["text" => "Total Pengunjung: {$total_views}"],
     "timestamp" => $timestamp
 ];
 
 $payload = json_encode(["embeds" => [$embed]]);
 
-// Kirim notifikasi menggunakan cURL
-$ch = curl_init($webhook_url);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_exec($ch);
-curl_close($ch);
+if (strpos($webhook_url, 'ganti_dengan') === false && filter_var($webhook_url, FILTER_VALIDATE_URL)) {
+    $ch = curl_init($webhook_url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_exec($ch);
+    curl_close($ch);
+}
 
-// --- End of Webhook Logic ---
-
-// Kembalikan hitungan sebagai JSON (untuk frontend)
+// --- RESPONSE ---
 header('Content-Type: application/json');
 echo json_encode(['count' => $total_views]);
 ?>
