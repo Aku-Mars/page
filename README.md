@@ -47,7 +47,9 @@ Isi file `000-default.conf` dengan konten berikut:
 
     # Redirect akses via IP langsung ke domain
     RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^8\.215\.1\.198$
+    RewriteCond %{HTTP_HOST} ^8\.215\.1\.198$ [OR]
+    RewriteCond %{HTTP_HOST} ^127\.0\.0\.1$ [OR]
+    RewriteCond %{HTTP_HOST} ^localhost$
     RewriteRule ^ https://akumars.my.id%{REQUEST_URI} [R=301,L]
     
     RedirectMatch permanent ^/list$ /list/

@@ -12,7 +12,9 @@ cat > /etc/apache2/sites-available/000-default.conf
 
     # Redirect akses via IP langsung ke domain
     RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^8\.215\.1\.198$
+    RewriteCond %{HTTP_HOST} ^8\.215\.1\.198$ [OR]
+    RewriteCond %{HTTP_HOST} ^127\.0\.0\.1$ [OR]
+    RewriteCond %{HTTP_HOST} ^localhost$
     RewriteRule ^ https://akumars.my.id%{REQUEST_URI} [R=301,L]
 
     # === Reverse‑Proxy Aplikasi ===
