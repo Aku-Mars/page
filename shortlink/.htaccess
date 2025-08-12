@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /shortlink/
+
+# Tangani shortlink dengan panjang variabel
+RewriteRule ^([a-zA-Z0-9]+)$ index.php?shortCode=$1 [L,QSA]

@@ -7,6 +7,7 @@ Panduan ini menjelaskan langkah-langkah untuk menyiapkan server hosting mengguna
 *   **To-Do List**: Aplikasi Flask dengan MariaDB yang berjalan di port `3001`.
 *   **Epic Dragon (Game)**: Aplikasi React/Vite yang berjalan di port `5173`.
 *   **Monitoring Dashboard**: Aplikasi HTML/CSS/JS statis yang berjalan di path biasa.
+*   **Shortlink**: Aplikasi PHP dengan MariaDB yang disajikan langsung oleh Apache.
 
 ## 1. Prasyarat
 
@@ -261,12 +262,50 @@ Aplikasi ini akan diakses melalui `https://akumars.my.id/list`.
     ```
     Gunakan `&` untuk menjalankan di latar belakang. Jika Anda ingin menghentikannya, Anda mungkin perlu mencari PID proses Python dan membunuhnya.
 
+### 5.4. Shortlink
+
+Aplikasi ini akan diakses melalui `https://akumars.my.id/shortlink`. Ini adalah aplikasi PHP yang berjalan langsung di bawah Apache, bukan melalui reverse proxy.
+
+1.  **Konfigurasi Database MariaDB:**
+    Masuk ke shell MariaDB:
+    ```bash
+    sudo mariadb
+    ```
+    Buat database dan tabel yang diperlukan:
+    ```sql
+    CREATE DATABASE shortlink_db;
+    USE shortlink_db;
+    CREATE TABLE shortlinks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        short_code VARCHAR(255) NOT NULL,
+        original_url TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+    **CATATAN!** Aplikasi ini dikonfigurasi untuk menggunakan user `admin` dan password `Mars123//`. Pastikan user ini ada atau ubah kredensial di `shortlink/index.php`.
+
+2.  **Konfigurasi Apache (`.htaccess`):**
+    Pastikan `mod_rewrite` sudah diaktifkan (`sudo a2enmod rewrite`) dan `AllowOverride All` sudah diatur untuk direktori `/var/www/html` di konfigurasi Virtual Host Anda.
+
+    Buat file `.htaccess` di dalam direktori `shortlink` (`/var/www/html/shortlink/.htaccess`) dengan isi berikut:
+    ```apache
+    RewriteEngine On
+    RewriteBase /shortlink/
+
+    # Tangani shortlink dengan panjang variabel
+    RewriteRule ^([a-zA-Z0-9]+)$ index.php?shortCode=$1 [L,QSA]
+    ```
+
+3.  **Jalankan Aplikasi:**
+    Tidak ada proses yang perlu dijalankan di latar belakang. Cukup pastikan file proyek `shortlink` berada di direktori yang benar (`/var/www/html/shortlink`).
+
 ## 6. Verifikasi
 
 Setelah semua aplikasi berjalan dan Apache dikonfigurasi, Anda dapat mengaksesnya melalui domain Anda:
 
-*   **Epic Dragon:** `https://akumars.my.id/list`
-*   **Monitoring Dashboard:** `https://akumars.my.id/game`
-*   **To-Do List:** `https://akumars.my.id/todo`
+*   **Epic Dragon:** `https://akumars.my.id/game`
+*   **Monitoring Dashboard:** `https://akumars.my.id/monitoring`
+*   **To-Do List:** `https://akumars.my.id/list`
+*   **Shortlink:** `https://akumars.my.id/shortlink`
 
 Pastikan untuk memeriksa log Apache (`/var/log/apache2/error.log` dan `access.log`) jika Anda mengalami masalah.

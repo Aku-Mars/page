@@ -82,3 +82,50 @@ sudo a2ensite 000-default-le-ssl.conf
 sudo apache2ctl configtest
 sudo systemctl reload apache2
 
+# epic-dragon
+cd /path/to/your/epic-dragon
+npm install
+npm run dev &
+
+# todolist
+sudo apt install mariadb-server
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo mariadb
+CREATE DATABASE todo_list;
+USE todo_list;
+CREATE TABLE tasks (
+     id INT AUTO_INCREMENT PRIMARY KEY,
+     title VARCHAR(255) NOT NULL,
+     due_date DATE,
+     description TEXT,
+     is_completed BOOLEAN DEFAULT FALSE
+);
+CREATE USER 'new_user'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON todo_list.* TO 'new_user'@'localhost';
+FLUSH PRIVILEGES;
+exit;
+cd /path/to/your/todolist
+pip install Flask Flask-SQLAlchemy PyMySQL pytz
+# Edit app.py with: app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://new_user:password@localhost/todo_list'
+python3 app.py &
+
+# shortlink
+cd /path/to/your/shortlink
+sudo mariadb
+CREATE DATABASE shortlink_db;
+USE shortlink_db;
+CREATE TABLE shortlinks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    short_code VARCHAR(255) NOT NULL,
+    original_url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+# User: admin, Pass: Mars123// in index.php
+# Create .htaccess in /shortlink/
+RewriteEngine On
+RewriteBase /shortlink/
+RewriteRule ^([a-zA-Z0-9]+)$ index.php?shortCode=$1 [L,QSA]
+
+# monitoring
+# No setup needed, static files.
