@@ -1,124 +1,84 @@
-# 🔗 Mars Shortlink - Pemendek URL Cepat & Mudah
+# Mars Shortlink
 
-![Shortlink](https://raw.githubusercontent.com/Aku-Mars/gambar/main/bannercps.png)
+Aplikasi pemendek URL (URL shortener) yang komprehensif dan kaya fitur, dibangun dengan PHP dan MySQL.
 
-## Deskripsi Aplikasi
+## Fitur Utama
 
-Mars Shortlink adalah aplikasi pemendek URL berbasis web yang memungkinkan Anda mengubah URL panjang menjadi tautan yang lebih pendek, mudah diingat, dan dapat dibagikan. Aplikasi ini mendukung pembuatan shortlink otomatis atau kustom, serta fitur penghapusan tautan. Ideal untuk kebutuhan berbagi tautan di media sosial, presentasi, atau di mana pun ruang karakter menjadi pertimbangan.
+- **Sistem Pengguna Lengkap**: Registrasi, login, dan manajemen password yang aman.
+- **Fitur "Ingat Saya"**: Kemampuan untuk tetap login dengan aman menggunakan cookies.
+- **Manajemen Link Pribadi**: Pengguna dapat membuat, mengedit, dan menghapus shortlink mereka sendiri.
+- **URL Otomatis**: Otomatis menambahkan `https://` ke URL jika tidak ada protokol (http/https) yang dimasukkan.
+- **Pelacakan Klik**: Melacak jumlah klik untuk setiap shortlink.
+- **Kode QR**: Membuat kode QR secara instan untuk setiap link.
+- **Link Kedaluwarsa**: Atur tanggal kedaluwarsa. Status (Aktif/Kadaluwarsa) ditampilkan dengan jelas dan dapat diubah.
+- **Pencarian**: Cari link dengan cepat berdasarkan kode pendek atau URL asli.
 
-## ✨ Fitur Utama
+## Fitur Admin
 
--   **Pemendekan URL:** Ubah URL panjang menjadi shortlink yang ringkas.
--   **Shortlink Kustom:** Buat shortlink dengan kode yang Anda inginkan (misalnya, `akumars.my.id/shortlink/nama-anda`).
--   **Panjang Shortlink Variabel:** Atur panjang shortcode yang dihasilkan secara otomatis.
--   **Pengalihan Cepat:** Redirect pengguna dari shortlink ke URL asli dengan cepat.
--   **Penghapusan Shortlink:** Hapus shortlink yang tidak lagi diperlukan.
--   **Daftar Shortlink:** Melihat daftar shortlink yang sudah dibuat (fitur ini ada di kode tapi dikomentari di UI).
+- **Dasbor Admin Komprehensif**: Menampilkan statistik total (pengguna, link, klik) dan grafik interaktif.
+- **Grafik Visual**: Pie chart untuk "Top Users" & "Top Links", serta Line chart untuk tren pembuatan link dan pendaftaran pengguna dari waktu ke waktu.
+- **Filter Waktu**: Semua grafik dapat difilter berdasarkan rentang waktu (30 hari, 1 tahun, semua).
+- **CRUD Pengguna**: Admin dapat membuat, melihat, mengedit (username & password), dan menghapus pengguna.
+- **Lihat Link Pengguna**: Admin dapat melihat semua link yang dimiliki oleh pengguna tertentu.
 
-## 🚀 Teknologi yang Digunakan
+## Persyaratan
 
--   **PHP:** Bahasa pemrograman sisi server untuk logika aplikasi dan interaksi database.
--   **MySQL/MariaDB:** Sistem manajemen database untuk menyimpan data shortlink.
--   **HTML:** Struktur halaman web.
--   **CSS:** Styling dasar antarmuka pengguna.
--   **Apache Mod_Rewrite:** Untuk mengelola pengalihan URL yang bersih dan SEO-friendly.
+- PHP
+- MySQL atau MariaDB
+- Web server (Apache, Nginx, dll.)
 
-## 📋 Syarat (Prasyarat)
+## Pengaturan
 
-Untuk menjalankan aplikasi ini, Anda memerlukan lingkungan server web yang mendukung PHP dan database MySQL/MariaDB. Contohnya:
+1.  **Konfigurasi Database**:
+    - Buat sebuah database (contoh: `shortlink_db`).
+    - Jalankan TIGA perintah `CREATE TABLE` di bawah ini untuk membuat tabel `users`, `shortlinks`, dan `auth_tokens`.
+    - Perbarui kredensial database (`$db_host`, `$db_user`, `$db_pass`, `$db_name`) di bagian atas file `index.php`.
 
--   **Server Web:** Apache (dengan `mod_rewrite` diaktifkan).
--   **PHP:** Versi 7.x atau lebih tinggi disarankan.
--   **Database:** MySQL atau MariaDB.
+2.  **Konfigurasi Web Server**:
+    - Letakkan folder `shortlink` di direktori root web server Anda.
+    - Pastikan `mod_rewrite` (untuk Apache) aktif dan `AllowOverride All` diatur untuk web root.
+    - Aturan rewrite untuk aplikasi ini harus diletakkan di file `.htaccess` **root** (`/var/www/html/.htaccess`) atau di konfigurasi Virtual Host.
 
-## 🛠️ Setup Awal / Instalasi
+3.  **Buat Pengguna Admin**:
+    - Daftarkan pengguna baru dengan `username` **admin**. Pengguna ini akan memiliki akses ke semua fitur admin.
 
-Ikuti langkah-langkah di bawah ini untuk mengatur dan menjalankan proyek ini di lingkungan lokal Anda:
+## Skema Database
 
-1.  **Clone Repositori:**
-    ```bash
-    git clone <URL_REPOSITORI_ANDA>
-    cd shortlink
-    ```
+**1. Tabel `users`:**
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-2.  **Konfigurasi Database:**
-    *   Buat database baru (misalnya `shortlink_db`) di MySQL/MariaDB Anda.
-    *   Jalankan query SQL berikut untuk membuat tabel `shortlinks`:
-        ```sql
-        CREATE DATABASE shortlink_db;
-        USE shortlink_db;
-        CREATE TABLE shortlinks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            short_code VARCHAR(255) NOT NULL,
-            original_url TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        ```
-    *   Sesuaikan kredensial database di `index.php` jika diperlukan:
-        ```php
-        $conn = new mysqli("localhost", "username_anda", "password_anda", "shortlink_db");
-        ```
+**2. Tabel `shortlinks`:**
+```sql
+CREATE TABLE shortlinks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    short_code VARCHAR(255) NOT NULL UNIQUE,
+    original_url TEXT NOT NULL,
+    user_id INT NULL,
+    click_count INT DEFAULT 0,
+    expires_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
 
-3.  **Konfigurasi Server Web (Apache):**
-    *   **Aktifkan `mod_rewrite`:**
-        ```bash
-        sudo a2enmod rewrite
-        sudo systemctl restart apache2
-        ```
-    *   **Konfigurasi Virtual Host (opsional, jika ingin akses langsung tanpa subfolder):**
-        Tambahkan konfigurasi berikut ke file virtual host Anda (misalnya `/etc/apache2/sites-available/000-default.conf`):
-        ```apache
-        <VirtualHost *:80>
-            ServerAdmin webmaster@localhost
-            DocumentRoot /var/www/html
-
-            <Directory /var/www/html>
-                Options Indexes FollowSymLinks
-                AllowOverride All
-                Require all granted
-            </Directory>
-
-            Alias /shortlink /var/www/html/shortlink
-            <Directory /var/www/html/shortlink>
-                Options Indexes FollowSymLinks
-                AllowOverride All
-                Require all granted
-            </Directory>
-
-            ErrorLog ${APACHE_LOG_DIR}/error.log
-            CustomLog ${APACHE_LOG_DIR}/access.log combined
-        </VirtualHost>
-        ```
-    *   **Buat file `.htaccess` di dalam folder `shortlink`:**
-        ```apache
-        RewriteEngine On
-        RewriteBase /shortlink/
-
-        # Tangani shortlink dengan panjang variabel
-        RewriteRule ^([a-zA-Z0-9]+)$ index.php?shortCode=$1 [L,QSA]
-        ```
-    *   **Restart Apache:**
-        ```bash
-        sudo systemctl restart apache2
-        ```
-
-4.  **Atur Izin File:**
-    ```bash
-    sudo chown -R www-data:www-data /var/www/html/shortlink
-    sudo chmod -R 755 /var/www/html/shortlink
-    ```
-
-5.  **Akses Aplikasi:**
-    *   Buka browser Anda dan navigasikan ke `http://localhost/shortlink` (sesuaikan jika nama folder atau konfigurasi virtual host Anda berbeda).
-
-## 💡 Potensi Pengembangan Lebih Lanjut
-
--   **Antarmuka Pengguna yang Lebih Baik:** Tingkatkan desain UI/UX dengan framework CSS modern (Bootstrap, Tailwind CSS) dan JavaScript untuk pengalaman yang lebih interaktif.
--   **Statistik Klik:** Tambahkan fitur untuk melacak jumlah klik pada setiap shortlink.
--   **Manajemen Pengguna:** Implementasikan sistem login/registrasi untuk memungkinkan pengguna mengelola shortlink mereka sendiri.
--   **Validasi Input:** Perkuat validasi URL dan shortcode kustom.
--   **API:** Sediakan API untuk memungkinkan aplikasi lain membuat atau mengelola shortlink secara terprogram.
--   **QR Code Generator:** Tambahkan fitur untuk menghasilkan QR Code dari shortlink.
--   **Kedaluwarsa Shortlink:** Fitur untuk mengatur tanggal kedaluwarsa pada shortlink.
--   **Domain Kustom:** Dukungan untuk menggunakan domain kustom sebagai basis shortlink.
--   **Keamanan:** Implementasikan perlindungan terhadap spam dan penyalahgunaan.
+**3. Tabel `auth_tokens` (untuk "Ingat Saya")**
+```sql
+CREATE TABLE `auth_tokens` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `selector` varchar(255) NOT NULL,
+  `hashed_validator` varchar(255) NOT NULL,
+  `user_id` int NOT NULL,
+  `expires` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `selector` (`selector`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `auth_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```

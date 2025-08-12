@@ -99,6 +99,10 @@ Certbot akan membuat file `000-default-le-ssl.conf` secara otomatis. Pastikan ko
 
 Contoh isi `000-default-le-ssl.conf` setelah dibuat oleh Certbot (pastikan blok `ProxyPass` ditambahkan secara manual jika Certbot tidak menambahkannya):
 
+```bash
+sudo nano /etc/apache2/sites-available/000-default-le-ssl.conf
+```
+
 ```apache
 <IfModule mod_ssl.c>
 <VirtualHost *:443>
@@ -264,40 +268,68 @@ Aplikasi ini akan diakses melalui `https://akumars.my.id/list`.
 
 ### 5.4. Shortlink
 
-Aplikasi ini akan diakses melalui `https://akumars.my.id/shortlink`. Ini adalah aplikasi PHP yang berjalan langsung di bawah Apache, bukan melalui reverse proxy.
+Aplikasi ini adalah URL shortener canggih berbasis PHP yang berjalan langsung di bawah Apache. Antarmuka aplikasi diakses melalui `https://akumars.my.id/shortlink`, sementara link yang dihasilkan akan menggunakan format `https://akumars.my.id/s/kode`.
+
+**Fitur Lengkap:**
+- **Sistem Pengguna**: Registrasi, login, dan fitur "Ingat Saya" yang aman.
+- **Manajemen Link**: Pengguna bisa membuat, mengedit (URL & tanggal kedaluwarsa), dan menghapus link.
+- **URL Otomatis**: Menambahkan `https://` secara otomatis jika protokol tidak disertakan.
+- **Pelacakan & Status**: Melacak klik dan menampilkan status link (Aktif/Kadaluwarsa) dengan jelas.
+- **Admin Dasbor**: Dasbor admin dengan statistik, grafik (Pie & Line), dan manajemen pengguna penuh (CRUD).
 
 1.  **Konfigurasi Database MariaDB:**
-    Masuk ke shell MariaDB:
-    ```bash
-    sudo mariadb
-    ```
-    Buat database dan tabel yang diperlukan:
+    Masuk ke shell MariaDB dan jalankan SQL berikut untuk membuat database dan semua tabel yang diperlukan.
+
     ```sql
     CREATE DATABASE shortlink_db;
     USE shortlink_db;
-    CREATE TABLE shortlinks (
+
+    -- Tabel untuk pengguna
+    CREATE TABLE users (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        short_code VARCHAR(255) NOT NULL,
-        original_url TEXT NOT NULL,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+    -- Tabel untuk shortlinks dengan fitur lengkap
+    CREATE TABLE shortlinks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        short_code VARCHAR(255) NOT NULL UNIQUE,
+        original_url TEXT NOT NULL,
+        user_id INT NULL,
+        click_count INT DEFAULT 0,
+        expires_at DATETIME NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    -- Tabel untuk otentikasi "Ingat Saya"
+    CREATE TABLE auth_tokens (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        selector CHAR(12) NOT NULL,
+        hashed_validator VARCHAR(255) NOT NULL,
+        user_id INT NOT NULL,
+        expires DATETIME NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
     ```
-    **CATATAN!** Aplikasi ini dikonfigurasi untuk menggunakan user `admin` dan password `Mars123//`. Pastikan user ini ada atau ubah kredensial di `shortlink/index.php`.
 
-2.  **Konfigurasi Apache (`.htaccess`):**
-    Pastikan `mod_rewrite` sudah diaktifkan (`sudo a2enmod rewrite`) dan `AllowOverride All` sudah diatur untuk direktori `/var/www/html` di konfigurasi Virtual Host Anda.
+2.  **Konfigurasi Kredensial:**
+    Buka file `shortlink/index.php` dan sesuaikan kredensial database (`$db_host`, `$db_user`, `$db_pass`, `$db_name`) di bagian atas file jika berbeda dari pengaturan default.
 
-    Buat file `.htaccess` di dalam direktori `shortlink` (`/var/www/html/shortlink/.htaccess`) dengan isi berikut:
+3.  **Konfigurasi Apache (`.htaccess`):**
+    Pastikan `mod_rewrite` diaktifkan (`sudo a2enmod rewrite`) dan `AllowOverride All` diatur untuk direktori web root Anda. Aturan rewrite untuk aplikasi ini **harus diletakkan di file `.htaccess` root** (`/var/www/html/.htaccess`) atau langsung di konfigurasi Virtual Host, **bukan** di dalam folder `shortlink`.
+
+    Tambahkan baris berikut ke `.htaccess` root Anda:
     ```apache
     RewriteEngine On
-    RewriteBase /shortlink/
-
-    # Tangani shortlink dengan panjang variabel
-    RewriteRule ^([a-zA-Z0-9]+)$ index.php?shortCode=$1 [L,QSA]
+    # Aturan untuk menangani format /s/kode
+    RewriteRule ^s/([a-zA-Z0-9_-]+)$ /shortlink/index.php?shortCode=$1 [L]
     ```
 
-3.  **Jalankan Aplikasi:**
-    Tidak ada proses yang perlu dijalankan di latar belakang. Cukup pastikan file proyek `shortlink` berada di direktori yang benar (`/var/www/html/shortlink`).
+4.  **Jalankan Aplikasi:**
+    Tidak ada proses latar belakang yang perlu dijalankan. Cukup letakkan folder `shortlink` di web root Anda. Untuk memulai, registrasi akun baru. Untuk mendapatkan akses admin, buat akun dengan username `admin`.
 
 ## 6. Verifikasi
 
